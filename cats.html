@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:200,300,400,500,600,700,800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <link rel="stylesheet" href="css/animate.css">
+
+  <link rel="stylesheet" href="css/bootstrap-datepicker.css">
+  <link rel="stylesheet" href="css/jquery.timepicker.css">
+
+  <link rel="stylesheet" href="css/flaticon.css">
+  <link rel="stylesheet" href="css/style.css">
+
+  <title>Pet EXPO - CATS</title>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const gridContainer = document.getElementById('cat-grid');
+      const paginationContainer = document.getElementById('pagination');
+      let catsData = [];
+      let currentPage = 1;
+      const itemsPerPage = 18;
+      let sortOrder = 'asc';
+
+      function displayCats(cats, single = false) {
+        gridContainer.innerHTML = '';
+        gridContainer.className = single ? 'single-container' : 'grid-container';
+        cats.forEach(cat => {
+          const catCard = document.createElement('div');
+          catCard.classList.add('cat-card');
+          catCard.innerHTML = `
+                <img src="${cat.image}">
+                <h3>${cat.name}</h3>
+                <p>${cat.description}</p>
+                <button class="details-button" data-cat-id="${cat.id}">Details</button>
+              `;
+          gridContainer.appendChild(catCard);
+        });
+
+        // Add event listeners to details buttons
+        const detailsButtons = document.querySelectorAll('.details-button');
+        detailsButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const catId = event.target.getAttribute('data-cat-id');;
+            window.location.href = `catsdetail.html?catId=${catId}`; // Navigate to cat's page
+          });
+        });
+      }
+
+      function fetchCats(page = 1) {
+        fetch('https://freetestapi.com/api/v1/cats')
+          .then(response => response.json())
+          .then(data => {
+            catsData = data;
+            displayPaginatedCats(page);
+            createPaginationButtons();
+          })
+          .catch(error => console.error('Error fetching cats:', error));
+      }
+
+      function displayPaginatedCats(page) {
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedCats = catsData.slice(startIndex, endIndex);
+        displayCats(paginatedCats);
+        highlightCurrentPage(page);
+      }
+
+      function createPaginationButtons() {
+        paginationContainer.innerHTML = '';
+        const totalPages = Math.ceil(catsData.length / itemsPerPage);
+        for (let i = 1; i <= totalPages; i++) {
+          const button = document.createElement('button');
+          button.innerText = i;
+          button.addEventListener('click', () => {
+            currentPage = i;
+            displayPaginatedCats(currentPage);
+          });
+          if (i === currentPage) {
+            button.classList.add('active');
+          }
+          paginationContainer.appendChild(button);
+        }
+      }
+
+      function highlightCurrentPage(page) {
+        const buttons = paginationContainer.querySelectorAll('button');
+        buttons.forEach(button => {
+          if (parseInt(button.innerText) === page) {
+            button.classList.add('active');
+          } else {
+            button.classList.remove('active');
+          }
+        });
+      }
+
+      document.getElementById('search-button').addEventListener('click', () => {
+        const query = document.getElementById('search-box').value;
+        searchCat(query);
+      });
+
+      function searchCat(query) {
+        fetch(`https://freetestapi.com/api/v1/cats?search=${query}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.length > 0) {
+              displayCats(data, true);
+            } else {
+              alert('Cat not found');
+            }
+          })
+          .catch(error => console.error('Error fetching search results:', error));
+      }
+
+      document.getElementById('sort-button').addEventListener('click', () => {
+        if (document.getElementById('search-box').value) {
+          document.getElementById('search-box').value = null;
+        }
+        if (sortOrder === 'asc') {
+          catsData.sort((a, b) => a.name.localeCompare(b.name));
+          sortOrder = 'desc';
+          document.getElementById('sort-button').innerText = 'Sort Z-A';
+        } else {
+          catsData.sort((a, b) => b.name.localeCompare(a.name));
+          sortOrder = 'asc';
+          document.getElementById('sort-button').innerText = 'Sort A-Z';
+        }
+        displayPaginatedCats(currentPage);
+      });
+
+      // Load initial set of cats
+      fetchCats();
+    });
+  </script>
+
+  <style>
+    /* Dropdown style */
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      background-color: #ffffff;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .dropdown-menu a {
+      color: rgb(81, 81, 80);
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .dropdown-menu a:hover {
+      background-color: #92d478cc;
+    }
+
+    .nav-item:hover .dropdown-menu {
+      display: block;
+    }
+
+    /*search starts*/
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      margin-top: 30px;
+    }
+
+    #search-box {
+      padding: 10px;
+      font-size: 16px;
+      width: 500px;
+      border: none;
+      margin-bottom: 30px;
+      padding-left: 25px;
+      padding-right: 15px;
+      border-radius: 25px;
+      box-shadow: 0px 1px 5px rgb(0, 0, 0, 0.25);
+    }
+
+    #search-button,
+    #sort-button {
+      padding: 5px 30px;
+      font-size: 16px;
+      margin-left: 10px;
+      cursor: pointer;
+      border: none;
+      margin-bottom: 30px;
+      padding-left: 15px;
+      padding-right: 15px;
+      border-radius: 5px;
+      box-shadow: 0px 1px 2px rgb(0, 0, 0, 0.25);
+      background-color: white;
+    }
+
+    /*container starts*/
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .single-container {
+      display: block;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .cat-card {
+      background-color: rgb(255, 255, 255);
+      border: 1px solid #ddd;
+      border-radius: 30px;
+      overflow: hidden;
+      text-align: center;
+      padding: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.25);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .cat-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.28);
+    }
+
+    .cat-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 30px;
+    }
+
+    .cat-card h3 {
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    .cat-card p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    /*pagination starts*/
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      margin-bottom: 50px;
+    }
+
+    .pagination-container button {
+      padding: 8px 18px;
+      margin: 0 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .pagination-container button.active {
+      background-color: #4f85a5;
+      color: white;
+    }
+
+    /*details button start*/
+    .cat-card .details-button {
+      background-color: #4f85a5;
+      color: white;
+      border: none;
+      margin-top: 10px;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .cat-card .details-button:hover {
+      background-color: #000000;
+    }
+  </style>
+
+</head>
+
+<body>
+  <!--navigation starts-->
+  <div class="wrap">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 d-flex align-items-center">
+          <p class="mb-0 phone pl-md-2">
+            <a href="#" class="mr-2"><span class="fa fa-phone mr-1"></span> +355 12 345 6789</a>
+            <a href="#"><span class="fa fa-paper-plane mr-1"></span> petexpo@gmail.com</a>
+          </p>
+        </div>
+        <div class="col-md-6 d-flex justify-content-md-end">
+          <div class="social-media">
+            <p class="mb-0 d-flex">
+              <a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-facebook"><i
+                    class="sr-only">Facebook</i></span></a>
+              <a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-twitter"><i
+                    class="sr-only">Twitter</i></span></a>
+              <a href="#" class="d-flex align-items-center justify-content-center"><span class="fa fa-instagram"><i
+                    class="sr-only">Instagram</i></span></a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html"><span class="flaticon-pawprint-1 mr-2"></span>PET EXPO</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav"
+        aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="fa fa-bars"></span> Menu
+      </button>
+      <div class="collapse navbar-collapse" id="ftco-nav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+          <li class="nav-item active"><a href="about.html" class="nav-link">About</a></li>
+          <li class="nav-item dropdown">
+            <a href="gallery.html" class="nav-link">Gallery</a>
+            <div class="dropdown-menu">
+              <a href="dogs.html">Dogs</a>
+              <a href="cats.html">Cats</a>
+              <a href="birds.html">Birds</a>
+            </div>
+          </li>
+          <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- Navigation ends -->
+
+  <!--search row starts-->
+  <div class="search-container">
+    <input type="text" id="search-box" placeholder="Search for a cat...">
+    <button id="search-button">Search</button>
+    <button id="sort-button">Sort A-Z</button>
+  </div>
+  <div id="cat-grid" class="grid-container"></div>
+  <div id="pagination" class="pagination-container"></div>
+  <!--search row ends-->
+
+  <!--Footer starts-->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 col-lg-3 mb-4 mb-md-0">
+          <h2 class="footer-heading">PET EXPO</h2>
+          <p>We are waiting for your visit</p>
+          <ul class="ftco-footer-social p-0">
+            <li class="ftco-animate"><a href="#" data-toggle="tooltip" data-placement="top" title="Twitter"><span
+                  class="fa fa-twitter"></span></a></li>
+            <li class="ftco-animate"><a href="#" data-toggle="tooltip" data-placement="top" title="Facebook"><span
+                  class="fa fa-facebook"></span></a></li>
+            <li class="ftco-animate"><a href="#" data-toggle="tooltip" data-placement="top" title="Instagram"><span
+                  class="fa fa-instagram"></span></a></li>
+          </ul>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-4 mb-md-0">
+          <h2 class="footer-heading">Latest News</h2>
+          <div class="block-21 mb-4 d-flex">
+            <a class="img mr-4 rounded" style="background-image: url(images/image_1.jpg);"></a>
+            <div class="text">
+              <h3 class="heading"><a href="#">Here are some great effects from walking your pet</a></h3>
+              <div class="meta">
+                <div><a href="#"><span class="icon-calendar"></span> June 1, 2024</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3 pl-lg-5 mb-4 mb-md-0">
+          <h2 class="footer-heading">Quick Links</h2>
+          <ul class="list-unstyled">
+            <li><a href="index.html" class="py-2 d-block">Home</a></li>
+            <li><a href="about.html" class="py-2 d-block">About</a></li>
+            <li><a href="contact.html" class="py-2 d-block">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-md-6 col-lg-3 mb-4 mb-md-0">
+          <h2 class="footer-heading">Have a Questions?</h2>
+          <div class="block-23 mb-3">
+            <ul>
+              <li><span class="icon fa fa-map"></span><span class="text">Tirane, Albania</span></li>
+              <li><a href="#"><span class="icon fa fa-phone"></span><span class="text">+355 12 345 6789</span></a></li>
+              <li><a href="#"><span class="icon fa fa-paper-plane"></span><span
+                    class="text">petexpo@gmail.com</span></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-5">
+
+      </div>
+    </div>
+  </footer>
+  <!--Footer ends-->
+
+  <!-- loader -->
+  <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px">
+      <circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee" />
+      <circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10"
+        stroke="#F96D00" />
+    </svg></div>
+
+  <script src="script.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/jquery-migrate-3.0.1.min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.easing.1.3.js"></script>
+  <script src="js/jquery.waypoints.min.js"></script>
+  <script src="js/jquery.stellar.min.js"></script>
+  <script src="js/jquery.animateNumber.min.js"></script>
+  <script src="js/bootstrap-datepicker.js"></script>
+  <script src="js/jquery.timepicker.min.js"></script>
+  <script src="js/owl.carousel.min.js"></script>
+  <script src="js/jquery.magnific-popup.min.js"></script>
+  <script src="js/scrollax.min.js"></script>
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+  <script src="js/google-map.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet EXPO - BIRDS DETAIL</title>
+
+    <!--Bird details style starts -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 60%;
+            /* height: 80%; */
+            max-width: 3000px;
+            background-color: #fff;
+            padding: 20px;
+            /* padding-left: 100px; */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container {
+            flex: 1;
+            padding-right: 20px;
+            /* margin-right: 200px; */
+        }
+
+        .text-button-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .text-container {
+            font-size: 27px;
+            margin-bottom: 20px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 10px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        p {
+            margin: 10px 0;
+        }
+
+        .red-button {
+            background-color: rgb(212, 4, 4);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .red-button a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .red-button a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .red-button {
+                width: 100%;
+            }
+        }
+    </style>
+    <!--Bird details style ends -->
+
+    <!--Bird details script starts -->
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const birdId = getQueryParam('birdId');
+            if (birdId) {
+                fetch(`https://freetestapi.com/api/v1/birds/${birdId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const birdsdetail = data;
+                        const birdsdetailInfoContainer = document.getElementById('birdsdetail-info');
+                        birdsdetailInfoContainer.innerHTML = `
+              <h2>${birdsdetail.name}</h2>
+              <p><strong>Species:</strong> ${birdsdetail.species}</p>
+              <p><strong>Family:</strong> ${birdsdetail.family}</p>
+              <p><strong>Habitat:</strong> ${birdsdetail.habitat}</p>
+              <p><strong>Place of Found:</strong> ${birdsdetail.place_of_found}</p>
+              <p><strong>Diet:</strong> ${birdsdetail.diet}</p>
+              <p><strong>Weight (kg):</strong> ${birdsdetail.weight_kg}</p>
+              <p><strong>Height (cm):</strong> ${birdsdetail.wingspan_cm}</p>
+            `;
+                        const birdsdetailImage = document.querySelector('.image-container img');
+                        birdsdetailImage.src = birdsdetail.image;
+                        birdsdetailImage.alt = birdsdetail.name;
+
+                    })
+                    .catch(error => console.error('Error fetching bird information:', error));
+            } else {
+                console.error('Bird ID not found in the URL');
+            }
+        });
+    </script>
+    <!--Bird details script ends -->
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="image-container">
+            <img src="" alt="Bird Image">
+        </div>
+        <div class="text-button-container">
+            <div class="text-container" id="birdsdetail-info">
+            </div>
+            <button class="red-button"><a href="birds.html">Exit</a></button>
+        </div>
+    </div>
+</body>
+
+</html>
