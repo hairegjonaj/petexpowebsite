@@ -12,6 +12,6 @@
 
 # Menu Gallery mban nje dropdown box me 3 menu te vecante : Dogs, Cats, Birds. Keto menu kane te njejten design per te ruajtur konsistences e shfaqjes te te dhenave
 
-# Menu-te Dogs, Cats, Birds kane cards per secilen kafshe ku gjendet fotoja, emri dhe detaje te kafshes. Faqet jane te nderuara me pagination per te menaxhuar ngarkesen e tyre ku numri maksimal i cards qe mund te shfaqen ne faqe eshte 18. Gjithashtu eshte implementuar search bar dhe sort button.
+# Menu-te Dogs, Cats, Birds kane cards per secilen kafshe ku gjendet fotoja, emri dhe detaje te kafshes. Faqet jane te ndertuara me pagination per te menaxhuar ngarkesen e tyre ku numri maksimal i cards qe mund te shfaqen ne faqe eshte 18. Gjithashtu eshte implementuar search bar dhe sort button.
 
 # View-t per secilen kafshe terheqin te dhenat nga API. 
